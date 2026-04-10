@@ -7,6 +7,6 @@
     "preview": "shopify app function run"
   },
   "devDependencies": {
-    "@shopify/shopify_function": "^0.0.4"
+    "@shopify/shopify_function": "^2.0.1"
   }
 }

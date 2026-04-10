@@ -5,15 +5,9 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import { addDocumentResponseHeaders } from "./shopify.server";
 
-export async function headers({ loaderHeaders }) {
-  // Pass Shopify required headers (CSP, frame-ancestors, etc.)
+export function headers({ loaderHeaders }) {
   return loaderHeaders;
-}
-
-export function links() {
-  return [];
 }
 
 export default function Root() {
