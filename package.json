@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "shopify app dev",
-    "build": "shopify app build",
+    "build": "remix vite:build",
     "deploy": "shopify app deploy",
     "lint": "eslint --no-eslintrc -c .eslintrc.cjs --fix .",
     "setup": "shopify app env pull"
@@ -12,13 +12,13 @@
     "extensions/*"
   ],
   "dependencies": {
+    "@netlify/remix-adapter": "^2.3.0",
     "@remix-run/node": "^2.0.0",
     "@remix-run/react": "^2.0.0",
-    "@remix-run/serve": "^2.0.0",
     "@shopify/app-bridge-react": "^4.1.0",
     "@shopify/polaris": "^12.0.0",
     "@shopify/shopify-app-remix": "^3.0.0",
-    "@shopify/shopify-app-session-storage-prisma": "^5.0.0",
+    "@shopify/shopify-app-session-storage-memory": "^4.0.0",
     "isbot": "^4.4.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"

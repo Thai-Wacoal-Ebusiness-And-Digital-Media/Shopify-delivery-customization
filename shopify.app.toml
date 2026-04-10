@@ -1,6 +1,7 @@
 name = "shopify-delivery-customization"
 client_id = "YOUR_CLIENT_ID_HERE"
-application_url = "https://your-app-url.com"
+# Replace with your Netlify URL after deploy: https://your-site.netlify.app
+application_url = "https://your-site.netlify.app"
 embedded = true
 
 [access_scopes]
@@ -9,9 +10,9 @@ scopes = ""
 
 [auth]
 redirect_urls = [
-  "https://your-app-url.com/auth/callback",
-  "https://your-app-url.com/auth/shopify/callback",
-  "https://your-app-url.com/api/auth/callback"
+  "https://your-site.netlify.app/auth/callback",
+  "https://your-site.netlify.app/auth/shopify/callback",
+  "https://your-site.netlify.app/api/auth/callback"
 ]
 
 [webhooks]
