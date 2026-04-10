@@ -1,0 +1,18 @@
+query RunInput {
+  cart {
+    buyerIdentity {
+      customer {
+        tags
+      }
+    }
+    deliveryGroups {
+      deliveryOptions {
+        handle
+        title
+        ... on ShopDeliveryOption {
+          code
+        }
+      }
+    }
+  }
+}
