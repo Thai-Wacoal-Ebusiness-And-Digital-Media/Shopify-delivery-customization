@@ -1,0 +1,21 @@
+name = "shopify-delivery-customization"
+client_id = "YOUR_CLIENT_ID_HERE"
+application_url = "https://your-app-url.com"
+embedded = true
+
+[access_scopes]
+# No extra scopes required — delivery customization functions run server-side
+scopes = ""
+
+[auth]
+redirect_urls = [
+  "https://your-app-url.com/auth/callback",
+  "https://your-app-url.com/auth/shopify/callback",
+  "https://your-app-url.com/api/auth/callback"
+]
+
+[webhooks]
+api_version = "2026-01"
+
+[pos]
+embedded = false

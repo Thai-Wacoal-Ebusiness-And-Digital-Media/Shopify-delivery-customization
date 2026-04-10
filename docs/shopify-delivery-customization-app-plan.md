@@ -218,7 +218,7 @@ shopify app function run
 ## Activation checklist
 
 - [x] Shopify Partner account created / confirmed — Node.js v22, Shopify CLI v3.89 verified 2026-04-10
-- [ ] `shopify app init` scaffolded
+- [x] `shopify app init` scaffolded — files created manually 2026-04-10: package.json, shopify.app.toml, .env.example, .gitignore, app/routes/_index.jsx. Fill in `client_id` in shopify.app.toml after creating app in Partner Dashboard.
 - [ ] Function logic written and unit-tested with `shopify app function run`
 - [ ] `shopify app deploy` successful — function ID noted
 - [ ] Laravel Artisan command `welfare:activate-pickup-restriction` created
