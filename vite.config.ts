@@ -13,8 +13,4 @@ export default defineConfig({
     }),
     netlifyPlugin(),
   ],
-  // Prevent vite from trying to process these large deps during dev
-  optimizeDeps: {
-    exclude: ["@shopify/shopify-app-remix"],
-  },
 });
