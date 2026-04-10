@@ -1,0 +1,12 @@
+{
+  "name": "hide-pickup-for-clients",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "shopify app function build",
+    "preview": "shopify app function run"
+  },
+  "devDependencies": {
+    "@shopify/shopify_function": "^0.0.4"
+  }
+}

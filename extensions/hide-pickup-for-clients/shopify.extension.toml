@@ -1,0 +1,13 @@
+api_version = "2026-01"
+
+[[extensions]]
+type = "function"
+name = "Hide pickup for client users"
+handle = "hide-pickup-for-clients"
+
+[extensions.build]
+command = "npm exec -- shopify-functions-build"
+path = "dist/index.wasm"
+
+[extensions.input]
+query_path = "src/run.graphql"

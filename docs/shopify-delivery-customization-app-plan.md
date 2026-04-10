@@ -220,7 +220,8 @@ shopify app function run
 - [x] Shopify Partner account created / confirmed — Node.js v22, Shopify CLI v3.89 verified 2026-04-10
 - [x] `shopify app init` scaffolded — files created manually 2026-04-10: package.json, shopify.app.toml, .env.example, .gitignore, app/routes/_index.jsx. Fill in `client_id` in shopify.app.toml after creating app in Partner Dashboard.
 - [x] Function logic written 2026-04-10: extensions/hide-pickup-for-clients/src/index.js + src/run.graphql. Unit test with `shopify app function run` pending deploy step.
-- [ ] `shopify app deploy` successful — function ID noted
+- [x] Extension manifest configured 2026-04-10: extensions/hide-pickup-for-clients/shopify.extension.toml (api_version 2026-01, type=function, input query_path set)
+- [ ] `shopify app deploy` successful — function ID noted (requires Partner Dashboard client_id in shopify.app.toml first)
 - [ ] Laravel Artisan command `welfare:activate-pickup-restriction` created
 - [ ] Command run on `twcwelfare` store
 - [ ] End-to-end test: client user checkout on twcwelfare — pickup hidden
