@@ -8,6 +8,3 @@ handle = "hide-pickup-for-clients"
 
 [extensions.input]
 query_path = "src/run.graphql"
-
-[extensions.input]
-query_path = "src/run.graphql"
