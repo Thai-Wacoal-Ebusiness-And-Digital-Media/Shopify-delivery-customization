@@ -13,6 +13,8 @@ export async function loader({ request }) {
     const params = new URLSearchParams({ shop });
     const host = url.searchParams.get("host");
     if (host) params.set("host", host);
+    const idToken = url.searchParams.get("id_token");
+    if (idToken) params.set("id_token", idToken);
     throw redirect(`/app?${params.toString()}`);
   }
   return login(request);
