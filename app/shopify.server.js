@@ -22,6 +22,9 @@ const shopify = shopifyApp({
   authPathPrefix: "/auth",
   sessionStorage: new PostgreSQLSessionStorage(process.env.DATABASE_URL),
   distribution: AppDistribution.AppStore,
+  future: {
+    unstable_newEmbeddedAuthStrategy: true,
+  },
 });
 
 export default shopify;
