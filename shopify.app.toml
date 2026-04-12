@@ -5,7 +5,7 @@ embedded = true
 
 [access_scopes]
 # No extra scopes required — delivery customization functions run server-side
-scopes = ""
+scopes = "read_customers"
 
 [auth]
 redirect_urls = [

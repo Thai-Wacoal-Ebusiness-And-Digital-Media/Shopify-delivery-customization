@@ -101,6 +101,17 @@ Use Gemini CLI as a **read-only context synthesizer** when the local codebase or
 
 Always review Gemini output before acting on it. Claude makes the final call.
 
+## Netlify — DO NOT Deploy via CLI or API
+
+**IMPORTANT:** Every `netlify deploy` call consumes Netlify build credits. Never run `netlify deploy`, `netlify build`, or any Netlify CLI/API command that triggers a deployment.
+
+Deployments must only be triggered manually by the user through the Netlify web dashboard or by pushing to the connected Git branch (which the user controls).
+
+To debug the live app without deploying:
+- Use `netlify logs` to stream function logs
+- Check the Netlify dashboard → Functions tab for error details
+- Use `netlify dev` locally to test without deploying
+
 ## Reference
 
 Full implementation plan with code examples: `docs/shopify-delivery-customization-app-plan.md`
