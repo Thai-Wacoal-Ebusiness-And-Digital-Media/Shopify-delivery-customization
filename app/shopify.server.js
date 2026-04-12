@@ -6,6 +6,13 @@ import {
 } from "@shopify/shopify-app-remix/server";
 import { PostgreSQLSessionStorage } from "@shopify/shopify-app-session-storage-postgresql";
 
+const dbUrl = process.env.DATABASE_URL;
+console.log("[shopify.server] DATABASE_URL set:", !!dbUrl);
+console.log("[shopify.server] PGSSLMODE:", process.env.PGSSLMODE);
+if (!dbUrl) {
+  console.error("[shopify.server] ERROR: DATABASE_URL is not set! Sessions will not persist.");
+}
+
 const shopify = shopifyApp({
   apiKey: process.env.SHOPIFY_API_KEY,
   apiSecretKey: process.env.SHOPIFY_API_SECRET || "",
