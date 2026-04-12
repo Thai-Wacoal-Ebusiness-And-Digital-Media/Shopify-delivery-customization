@@ -6,5 +6,8 @@ type = "function"
 name = "Hide pickup for client users"
 handle = "hide-pickup-for-clients"
 
+[[extensions.targeting]]
+target = "purchase.delivery-customization.run"
+
 [extensions.input]
 query_path = "src/run.graphql"

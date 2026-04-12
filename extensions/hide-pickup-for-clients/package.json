@@ -8,5 +8,23 @@
   },
   "devDependencies": {
     "@shopify/shopify_function": "^2.0.1"
+  },
+  "codegen": {
+    "schema": "schema.graphql",
+    "documents": "src/run.graphql",
+    "generates": {
+      "src/run.types.d.ts": {
+        "plugins": [
+          "@graphql-codegen/typescript",
+          "@graphql-codegen/typescript-operations"
+        ],
+        "config": {
+          "enumsAsTypes": true,
+          "declarationKind": "interface",
+          "avoidOptionals": true,
+          "preResolveTypes": true
+        }
+      }
+    }
   }
 }

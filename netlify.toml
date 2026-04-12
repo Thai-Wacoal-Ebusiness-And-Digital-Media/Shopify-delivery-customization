@@ -4,14 +4,8 @@
   publish = "build/client"
 
 [functions]
+  directory = ".netlify/functions-internal"
   node_bundler = "esbuild"
-  included_files = ["build/server/**"]
-
-# Remix SSR — forward all requests to the server function
-[[redirects]]
-  from = "/*"
-  to = "/.netlify/functions/server"
-  status = 200
 
 [build.environment]
   NODE_VERSION = "22"

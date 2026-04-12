@@ -2,16 +2,14 @@ query RunInput {
   cart {
     buyerIdentity {
       customer {
-        tags
+        hasAnyTag(tags: ["Client_NoPickup"])
       }
     }
     deliveryGroups {
       deliveryOptions {
         handle
         title
-        ... on ShopDeliveryOption {
-          code
-        }
+        deliveryMethodType
       }
     }
   }

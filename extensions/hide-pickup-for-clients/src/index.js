@@ -1,33 +1,27 @@
 // @ts-check
-
 /**
  * Shopify Delivery Customization Function
- * Hides all local pickup options for customers tagged "Client_NoPickup".
+ * Hides all local pickup options for customers tagged Client_NoPickup.
  *
- * These are Wacoal welfare client users (external partners registered via
- * campaign code) who are not permitted to enter the factory compound for pickup.
- *
- * Input object shape is defined by Shopify's function API (see src/run.graphql):
- *   input.cart.buyerIdentity.customer  — customer context (null for guests)
- *   input.cart.deliveryGroups          — array of delivery groups with options
+ * Uses hasAnyTag() because the Shopify Functions API does not expose
+ * customer.tags directly.
  */
 export default function run(input) {
-  const customerTags = input.cart?.buyerIdentity?.customer?.tags ?? [];
+  const isClientNoPickup =
+    input.cart?.buyerIdentity?.customer?.hasAnyTag ?? false;
 
-  // Guests and non-client employees see pickup normally
-  if (!customerTags.includes("Client_NoPickup")) {
+  if (!isClientNoPickup) {
     return { operations: [] };
   }
 
-  // Hide all local-pickup delivery options across all delivery groups
   const hideOperations = input.cart.deliveryGroups.flatMap((group) =>
     group.deliveryOptions
       .filter(
         (option) =>
-          option.code === "PICK_UP" ||
+          option.deliveryMethodType === "PICK_UP" ||
           option.title?.toLowerCase().includes("pickup") ||
           option.title?.toLowerCase().includes("pick up") ||
-          option.title?.toLowerCase().includes("รับสินค้า") // Thai label fallback
+          option.title?.toLowerCase().includes("รับสินค้า")
       )
       .map((option) => ({
         hide: { deliveryOptionHandle: option.handle },

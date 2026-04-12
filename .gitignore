@@ -7,3 +7,6 @@ build/
 dist/
 .shopify/
 extensions/*/dist/
+
+# Local Netlify folder
+.netlify
