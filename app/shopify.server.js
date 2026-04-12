@@ -4,11 +4,8 @@ import {
   shopifyApp,
   ApiVersion,
 } from "@shopify/shopify-app-remix/server";
-import { SQLiteSessionStorage } from "@shopify/shopify-app-session-storage-sqlite";
+import { PostgreSQLSessionStorage } from "@shopify/shopify-app-session-storage-postgresql";
 
-// NOTE: MemorySessionStorage is for testing only.
-// Sessions are lost on each Netlify cold start.
-// Replace with a database-backed storage (Prisma, Redis, etc.) for production.
 const shopify = shopifyApp({
   apiKey: process.env.SHOPIFY_API_KEY,
   apiSecretKey: process.env.SHOPIFY_API_SECRET || "",
@@ -16,7 +13,7 @@ const shopify = shopifyApp({
   scopes: process.env.SCOPES?.split(","),
   appUrl: process.env.SHOPIFY_APP_URL || "",
   authPathPrefix: "/auth",
-  sessionStorage: new SQLiteSessionStorage("/tmp/shopify_sessions.db"),
+  sessionStorage: new PostgreSQLSessionStorage(process.env.DATABASE_URL),
   distribution: AppDistribution.AppStore,
 });
 
