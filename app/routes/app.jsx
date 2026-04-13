@@ -16,7 +16,18 @@ export async function loader({ request }) {
     return json({ apiKey: process.env.SHOPIFY_API_KEY || "" });
   } catch (e) {
     if (e instanceof Response) {
-      console.log("[app.jsx] authenticate.admin threw redirect:", e.status, e.headers.get("location"));
+      const location = e.headers.get("location");
+      console.log("[app.jsx] authenticate.admin threw redirect:", e.status, location);
+      // The library bounces to admin.shopify.com when token exchange needs a fresh token.
+      // A plain 302 inside the iframe fails (admin.shopify.com has X-Frame-Options: DENY).
+      // Instead, return an HTML page that redirects the TOP-LEVEL window (parent frame).
+      if (location?.includes("admin.shopify.com")) {
+        const html = `<!DOCTYPE html><html><head><script>window.top.location.href=${JSON.stringify(location)};</script></head><body></body></html>`;
+        return new Response(html, {
+          status: 200,
+          headers: { "Content-Type": "text/html" },
+        });
+      }
       throw e;
     }
     console.error("[app.jsx] authenticate.admin threw error:", e.message, e.stack);
