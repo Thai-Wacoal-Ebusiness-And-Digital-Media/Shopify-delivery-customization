@@ -10,3 +10,4 @@ extensions/*/dist/
 
 # Local Netlify folder
 .netlify
+.env.prod

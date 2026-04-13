@@ -1,6 +1,6 @@
-name = "ebiz-delivery-customization"
-client_id = "12062f51cc3b8a83a0da728c3527d235"
-application_url = "https://ebizdeliverycustom.netlify.app"
+name = "ebiz-delivery-custom-dev"
+client_id = "370a9aa862a187ec6effe6fe24d907cc"
+application_url = "https://dev--ebizdeliverycustom.netlify.app"
 embedded = true
 
 [access_scopes]
