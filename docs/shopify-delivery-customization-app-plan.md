@@ -59,8 +59,8 @@ shopify-delivery-customization/          ← new repo / directory (outside this 
 
 | App | Client ID | URL | Branch |
 |-----|-----------|-----|--------|
-| `ebiz-delivery-customization` (production) | `12062f51cc3b8a83a0da728c3527d235` | `https://ebizdeliverycustom.netlify.app` | `main` |
-| `ebiz-delivery-custom-dev` (dev/testing) | `370a9aa862a187ec6effe6fe24d907cc` | `https://dev--ebizdeliverycustom.netlify.app` | `dev` |
+| `ebiz-delivery-customization` (production) | (see Partners dashboard) | (see Netlify dashboard) | `main` |
+| `ebiz-delivery-custom-dev` (dev/testing) | (see Partners dashboard) | (see Netlify dashboard) | `dev` |
 
 **Active testing is on the `dev` branch / dev app.** Production (`main`) has not been updated since the auth fixes were made on `dev`.
 
@@ -76,9 +76,9 @@ UID in `extensions/hide-pickup-for-clients/shopify.extension.toml`: `40314a48-c2
 
 | Variable | Production context | Dev branch context |
 |----------|-------------------|-------------------|
-| `SHOPIFY_API_KEY` | `12062f51cc3b8a83a0da728c3527d235` | `370a9aa862a187ec6effe6fe24d907cc` |
+| `SHOPIFY_API_KEY` | (production client ID — see Partners dashboard) | (dev client ID — see Partners dashboard) |
 | `SHOPIFY_API_SECRET` | (production secret) | (dev secret — stored in Netlify env vars only, not in repo) |
-| `SHOPIFY_APP_URL` | `https://ebizdeliverycustom.netlify.app` | `https://dev--ebizdeliverycustom.netlify.app` |
+| `SHOPIFY_APP_URL` | (production URL — see Netlify dashboard) | (dev URL — see Netlify dashboard) |
 | `DATABASE_URL` | Neon pooler URL (`-pooler` hostname, `sslmode=require` only — no `channel_binding`) | same pooler URL |
 | `PGSSLMODE` | `require` | `require` |
 | `SCOPES` | `read_customers` | `read_customers` |
