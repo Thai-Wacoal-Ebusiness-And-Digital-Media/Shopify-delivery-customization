@@ -36,6 +36,7 @@ Once deployed, the function is activated on each relevant store via a single `de
 ```
 shopify-delivery-customization/          ← new repo / directory (outside this Laravel repo)
 ├── shopify.app.toml
+├── shopify.app.ebiz-delivery-custom-dev.toml   ← dev branch config (created by CLI --reset)
 ├── package.json
 ├── remix.config.js                      ← Remix app shell (required by Shopify CLI)
 ├── app/
@@ -44,119 +45,95 @@ shopify-delivery-customization/          ← new repo / directory (outside this 
     └── hide-pickup-for-clients/
         ├── shopify.extension.toml
         ├── src/
-        │   └── index.js                 ← function logic (compiled to Wasm by Shopify CLI)
+        │   ├── index.js                 ← function logic (compiled to Wasm by Shopify CLI)
+        │   ├── run.graphql              ← GraphQL input query for the function
+        │   └── run.types.d.ts
         └── schema.graphql
 ```
 
 ---
 
+## Current deployment state (as of 2026-04-13)
+
+### Two Shopify apps exist
+
+| App | Client ID | URL | Branch |
+|-----|-----------|-----|--------|
+| `ebiz-delivery-customization` (production) | `12062f51cc3b8a83a0da728c3527d235` | `https://ebizdeliverycustom.netlify.app` | `main` |
+| `ebiz-delivery-custom-dev` (dev/testing) | `370a9aa862a187ec6effe6fe24d907cc` | `https://dev--ebizdeliverycustom.netlify.app` | `dev` |
+
+**Active testing is on the `dev` branch / dev app.** Production (`main`) has not been updated since the auth fixes were made on `dev`.
+
+### Function ID (dev app)
+
+```
+gid://shopify/ShopifyFunction/40314a48-c2a3-0aaf-f973-6d88535d16d8bcf1f871
+```
+
+UID in `extensions/hide-pickup-for-clients/shopify.extension.toml`: `40314a48-c2a3-0aaf-f973-6d88535d16d8bcf1f871`
+
+### Netlify environment variables (required per branch)
+
+| Variable | Production context | Dev branch context |
+|----------|-------------------|-------------------|
+| `SHOPIFY_API_KEY` | `12062f51cc3b8a83a0da728c3527d235` | `370a9aa862a187ec6effe6fe24d907cc` |
+| `SHOPIFY_API_SECRET` | (production secret) | (dev secret — stored in Netlify env vars only, not in repo) |
+| `SHOPIFY_APP_URL` | `https://ebizdeliverycustom.netlify.app` | `https://dev--ebizdeliverycustom.netlify.app` |
+| `DATABASE_URL` | Neon pooler URL (`-pooler` hostname, `sslmode=require` only — no `channel_binding`) | same pooler URL |
+| `PGSSLMODE` | `require` | `require` |
+| `SCOPES` | `read_customers` | `read_customers` |
+
+**IMPORTANT:** `DATABASE_URL` must use the **Neon pooler** hostname (`ep-autumn-sea-a1rfd9ig-pooler.ap-southeast-1.aws.neon.tech`) and must NOT include `channel_binding=require` — that parameter causes `ECONNRESET` with the `pg` library.
+
+### Key fixes applied to the Remix app (all on `dev` branch)
+
+1. **Session storage**: Switched from SQLite to PostgreSQL (`@shopify/shopify-app-session-storage-postgresql`) using Neon.tech free tier.
+2. **Token exchange auth**: Enabled `unstable_newEmbeddedAuthStrategy: true` in `shopify.server.js` — uses Shopify session token exchange instead of OAuth redirect (required because OAuth redirects inside an iframe fail with `X-Frame-Options: DENY`).
+3. **`id_token` passthrough**: `app/routes/_index.jsx` now forwards `id_token` query param when redirecting to `/app` (required for token exchange to work).
+4. **exitIframe fix**: `app/routes/app.jsx` intercepts the library's bounce redirect to `admin.shopify.com` and returns HTML that does `window.top.location.href = ...` instead of a plain 302 — prevents blank iframe caused by `X-Frame-Options: DENY` on admin.shopify.com.
+
+---
+
 ## Step-by-step build plan
 
-### Step 1 — Prerequisites
+### Step 1 — Prerequisites ✅
 
 - Shopify Partner account (or use existing)
 - Shopify CLI v3+ installed: `npm install -g @shopify/cli`
 - Node.js 18+
 - The app must be installed on the target store(s) to activate the function
 
-### Step 2 — Scaffold the app
+### Step 2 — Scaffold the app ✅
 
-```bash
-npm init @shopify/app@latest
-# choose: Start by adding your first extension
-# extension type: Delivery customization
-# language: JavaScript
-```
+Done. App scaffolded and hosted on Netlify.
 
-Or scaffold manually:
+### Step 3 — Write the function logic ✅
 
-```bash
-shopify app init
-shopify app generate extension --template delivery_customizations --name hide-pickup-for-clients
-```
+File: `extensions/hide-pickup-for-clients/src/index.js` — complete.
 
-### Step 3 — Write the function logic
+Uses `hasAnyTag(tags: ["Client_NoPickup"])` via `run.graphql` (the Functions API does not expose `customer.tags` directly, so `hasAnyTag` is the correct approach).
 
-File: `extensions/hide-pickup-for-clients/src/index.js`
+### Step 4 — Configure the extension manifest ✅
 
-```js
-// @ts-check
-import { DeliveryCustomizationResult } from "@shopify/shopify_function";
+File: `extensions/hide-pickup-for-clients/shopify.extension.toml` — complete.
 
-/**
- * Shopify Delivery Customization Function
- * Hides all local pickup options for customers tagged "Client_NoPickup".
- *
- * Input object shape is defined by Shopify's function API:
- *   input.cart.buyerIdentity.customer  — customer context (may be null for guest)
- *   input.cart.deliveryGroups          — array of delivery groups with options
- */
-export default function run(input) {
-  const customerTags = input.cart?.buyerIdentity?.customer?.tags ?? [];
-
-  // Only apply restriction if customer has the Client_NoPickup tag
-  if (!customerTags.includes("Client_NoPickup")) {
-    return { operations: [] };
-  }
-
-  // Collect handles of all local-pickup delivery options across all groups
-  const hideOperations = input.cart.deliveryGroups.flatMap((group) =>
-    group.deliveryOptions
-      .filter(
-        (option) =>
-          option.code === "PICK_UP" ||
-          option.title?.toLowerCase().includes("pickup") ||
-          option.title?.toLowerCase().includes("pick up") ||
-          option.title?.toLowerCase().includes("รับสินค้า")   // Thai label fallback
-      )
-      .map((option) => ({
-        hide: { deliveryOptionHandle: option.handle },
-      }))
-  );
-
-  return { operations: hideOperations };
-}
-```
-
-### Step 4 — Configure the extension manifest
-
-File: `extensions/hide-pickup-for-clients/shopify.extension.toml`
-
-```toml
-api_version = "2026-01"
-
-[[extensions]]
-type = "function"
-name = "Hide pickup for client users"
-handle = "hide-pickup-for-clients"
-runtime = "wasm"
-build_command = "shopify app function build"
-
-[[extensions.input.variables]]
-  name = "cart"
-  type = "Cart"
-
-[[extensions.input.variables]]
-  name = "deliveryGroups"
-  type = "[DeliveryGroup!]!"
-```
-
-### Step 5 — Deploy
+### Step 5 — Deploy ✅
 
 ```bash
 shopify app deploy
 ```
 
-Shopify CLI compiles the JS to Wasm and registers the function. After deployment, note the **function ID** from the output (format: `gid://shopify/ShopifyFunction/...`).
+Deployed on 2026-04-13. Function ID:
+```
+gid://shopify/ShopifyFunction/40314a48-c2a3-0aaf-f973-6d88535d16d8bcf1f871
+```
 
-### Step 6 — Activate via Laravel Artisan command
+### Step 6 — Activate via Laravel Artisan command ⬅️ NEXT
 
-In the Laravel repo (`shopify-api`), add an Artisan command that calls `deliveryCustomizationCreate` on each welfare store:
+In the Laravel repo (`shopify-api`), create an Artisan command that calls `deliveryCustomizationCreate` on the welfare store:
 
-```php
-// app/Console/Commands/ActivateDeliveryCustomization.php
-
-php artisan welfare:activate-pickup-restriction --store=twcwelfare --function-id=gid://shopify/ShopifyFunction/xxxxx
+```bash
+php artisan welfare:activate-pickup-restriction --store=twcwelfare --function-id=gid://shopify/ShopifyFunction/40314a48-c2a3-0aaf-f973-6d88535d16d8bcf1f871
 ```
 
 The command executes this GraphQL mutation on the target store:
@@ -164,7 +141,7 @@ The command executes this GraphQL mutation on the target store:
 ```graphql
 mutation {
   deliveryCustomizationCreate(deliveryCustomization: {
-    functionId: "gid://shopify/ShopifyFunction/xxxxx",
+    functionId: "gid://shopify/ShopifyFunction/40314a48-c2a3-0aaf-f973-6d88535d16d8bcf1f871",
     title: "Hide pickup for client users",
     enabled: true
   }) {
@@ -218,13 +195,14 @@ shopify app function run
 ## Activation checklist
 
 - [x] Shopify Partner account created / confirmed — Node.js v22, Shopify CLI v3.89 verified 2026-04-10
-- [x] `shopify app init` scaffolded — files created manually 2026-04-10: package.json, shopify.app.toml, .env.example, .gitignore, app/routes/_index.jsx. Fill in `client_id` in shopify.app.toml after creating app in Partner Dashboard.
-- [x] Function logic written 2026-04-10: extensions/hide-pickup-for-clients/src/index.js + src/run.graphql. Unit test with `shopify app function run` pending deploy step.
-- [x] Extension manifest configured 2026-04-10: extensions/hide-pickup-for-clients/shopify.extension.toml (api_version 2026-01, type=function, input query_path set)
-- [ ] `shopify app deploy` successful — function ID noted (requires Partner Dashboard client_id in shopify.app.toml first)
-- [ ] Laravel Artisan command `welfare:activate-pickup-restriction` created (pending — implement in shopify-api repo)
-- [ ] Command run on `twcwelfare` store (pending deploy step above)
-- [ ] End-to-end test: client user checkout on twcwelfare — pickup hidden
+- [x] `shopify app init` scaffolded — 2026-04-10
+- [x] Function logic written — `extensions/hide-pickup-for-clients/src/index.js` + `src/run.graphql`
+- [x] Extension manifest configured — `extensions/hide-pickup-for-clients/shopify.extension.toml`
+- [x] Remix app shell working — hosted on Netlify, embedded in Shopify admin, auth working (dev branch)
+- [x] `shopify app deploy` successful — 2026-04-13, function ID: `gid://shopify/ShopifyFunction/40314a48-c2a3-0aaf-f973-6d88535d16d8bcf1f871`
+- [ ] Laravel Artisan command `welfare:activate-pickup-restriction` created (implement in `shopify-api` repo)
+- [ ] Command run on `twcwelfare` store with the function ID above
+- [ ] End-to-end test: client user (`Client_NoPickup` tag) checkout on twcwelfare — pickup hidden
 - [ ] End-to-end test: employee checkout on twcwelfare — pickup visible
 
 > Full deploy and activation steps: `docs/deploy-runbook.md`

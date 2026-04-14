@@ -9,15 +9,12 @@ export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 // All /app/* routes are protected — unauthenticated requests redirect to OAuth
 export async function loader({ request }) {
-  console.log("[app.jsx] loader called, SHOPIFY_API_KEY:", process.env.SHOPIFY_API_KEY);
   try {
     await authenticate.admin(request);
-    console.log("[app.jsx] authenticate.admin succeeded");
     return json({ apiKey: process.env.SHOPIFY_API_KEY || "" });
   } catch (e) {
     if (e instanceof Response) {
       const location = e.headers.get("location");
-      console.log("[app.jsx] authenticate.admin threw redirect:", e.status, location);
       // The library bounces to admin.shopify.com when token exchange needs a fresh token.
       // A plain 302 inside the iframe fails (admin.shopify.com has X-Frame-Options: DENY).
       // Instead, return an HTML page that redirects the TOP-LEVEL window (parent frame).
@@ -30,7 +27,6 @@ export async function loader({ request }) {
       }
       throw e;
     }
-    console.error("[app.jsx] authenticate.admin threw error:", e.message, e.stack);
     throw e;
   }
 }
