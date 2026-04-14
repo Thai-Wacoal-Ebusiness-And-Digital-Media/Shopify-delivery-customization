@@ -1,24 +1,18 @@
-name = "ebiz-delivery-custom-dev"
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
 client_id = "370a9aa862a187ec6effe6fe24d907cc"
+name = "ebiz-delivery-custom-dev"
 application_url = "https://dev--ebizdeliverycustom.netlify.app"
 embedded = true
-
-[access_scopes]
-# No extra scopes required — delivery customization functions run server-side
-scopes = "read_customers"
-
-[auth]
-redirect_urls = [
-  "https://ebizdeliverycustom.netlify.app/auth/callback",
-  "https://ebizdeliverycustom.netlify.app/auth/shopify/callback",
-  "https://ebizdeliverycustom.netlify.app/api/auth/callback",
-  "https://dev--ebizdeliverycustom.netlify.app/auth/callback",
-  "https://dev--ebizdeliverycustom.netlify.app/auth/shopify/callback",
-  "https://dev--ebizdeliverycustom.netlify.app/api/auth/callback"
-]
 
 [webhooks]
 api_version = "2026-04"
 
-[pos]
-embedded = false
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_customers,write_delivery_customizations"
+optional_scopes = [ ]
+use_legacy_install_flow = false
+
+[auth]
+redirect_urls = [ "https://dev--ebizdeliverycustom.netlify.app/auth/callback" ]
