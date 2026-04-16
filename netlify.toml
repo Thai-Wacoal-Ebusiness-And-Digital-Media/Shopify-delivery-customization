@@ -11,3 +11,9 @@
   NODE_VERSION = "22"
   NPM_FLAGS = "--legacy-peer-deps --include=dev"
   SECRETS_SCAN_OMIT_PATHS = "shopify.app.toml"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "ALLOW-FROM https://admin.shopify.com"
+    Content-Security-Policy = "frame-ancestors https://admin.shopify.com https://twcwelfare.myshopify.com;"
