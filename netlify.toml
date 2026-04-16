@@ -9,5 +9,5 @@
 
 [build.environment]
   NODE_VERSION = "22"
-  NPM_FLAGS = "--legacy-peer-deps"
+  NPM_FLAGS = "--legacy-peer-deps --include=dev"
   SECRETS_SCAN_OMIT_PATHS = "shopify.app.toml"
