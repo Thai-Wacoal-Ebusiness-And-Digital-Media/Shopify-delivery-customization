@@ -15,16 +15,17 @@ export async function loader({ request }) {
   } catch (e) {
     if (e instanceof Response) {
       const location = e.headers.get("location");
-      // The library bounces to admin.shopify.com when token exchange needs a fresh token.
-      // A plain 302 inside the iframe fails (admin.shopify.com has X-Frame-Options: DENY).
-      // Instead, return an HTML page that redirects the TOP-LEVEL window (parent frame).
-      if (location?.includes("admin.shopify.com")) {
+      // Any absolute external redirect must escape the iframe via window.top.
+      // admin.shopify.com AND accounts.shopify.com both have X-Frame-Options: DENY,
+      // so a bare 302 inside the iframe would be blocked by the browser → blank page.
+      if (location && (location.startsWith("https://") || location.startsWith("http://"))) {
         const html = `<!DOCTYPE html><html><head><script>window.top.location.href=${JSON.stringify(location)};</script></head><body></body></html>`;
         return new Response(html, {
           status: 200,
           headers: { "Content-Type": "text/html" },
         });
       }
+      // Local redirect (e.g. /auth?shop=...) — safe to let Remix handle it.
       throw e;
     }
     throw e;
