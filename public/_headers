@@ -1,0 +1,10 @@
+# Netlify response headers for all routes.
+#
+# Shopify embedded apps must be renderable inside Shopify admin's iframe.
+# The app sets Content-Security-Policy: frame-ancestors dynamically via
+# addDocumentResponseHeaders(), but we also strip any X-Frame-Options that
+# Netlify or a dependency might inject, because X-Frame-Options: SAMEORIGIN
+# would block the iframe regardless of the CSP header.
+/*
+  ! X-Frame-Options
+  X-Content-Type-Options: nosniff
