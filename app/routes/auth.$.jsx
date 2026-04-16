@@ -20,10 +20,13 @@ export async function loader({ request }) {
       // Any absolute external redirect (https://...) must escape the iframe.
       if (location && (location.startsWith("https://") || location.startsWith("http://"))) {
         const html = `<!DOCTYPE html><html><head><script>window.top.location.href=${JSON.stringify(location)};</script></head><body></body></html>`;
-        return new Response(html, {
-          status: 200,
-          headers: { "Content-Type": "text/html" },
-        });
+        // CRITICAL: copy ALL headers from the original response so that
+        // Set-Cookie (OAuth state nonce) is forwarded to the browser.
+        // If we drop Set-Cookie here, the OAuth callback will fail with
+        // "Could not find an OAuth cookie" because the state was never stored.
+        const headers = new Headers(e.headers);
+        headers.set("Content-Type", "text/html");
+        return new Response(html, { status: 200, headers });
       }
       // Local redirect (e.g. /auth?shop=...) — safe to let Remix handle it.
       throw e;
